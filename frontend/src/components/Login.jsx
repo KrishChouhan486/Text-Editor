@@ -75,7 +75,9 @@ const Login = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
+            onClick={() => console.log("Login button clicked!")}
           >
+           
             Login
           </button>
         </form>

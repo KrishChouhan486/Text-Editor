@@ -7,23 +7,28 @@ const router = express.Router();
 // 🔍 Debugging: Log when the route file is loaded
 console.log("✅ Auth Routes Loaded");
 
-// Google OAuth Login
 router.get("/auth/google", (req, res, next) => {
-  console.log("🔵 Google OAuth Login Initiated"); // ✅ Log request initiation
-  passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+  console.log("🔵 Google OAuth Login Initiated", new Date().toISOString()); // ✅ Add timestamp to track multiple requests
+
+  if (req.user) {
+    console.log("✅ User already authenticated, redirecting to /editor");
+    return res.redirect(`${FRONTEND_URL}/editor`);
+  }
+
+  return passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
-// Google OAuth Callback
+
 router.get("/auth/google/callback", (req, res, next) => {
-  console.log("🔵 Google OAuth Callback Triggered"); // ✅ Log when callback is hit
+  console.log("🔵 Google OAuth Callback Triggered", new Date().toISOString());
 
   passport.authenticate("google", (err, user, info) => {
     if (err) {
-      console.error("❌ Google Auth Error:", err); // 🔴 Log error
+      console.error("❌ Google Auth Error:", err);
       return res.redirect(`${FRONTEND_URL}/login?error=auth_failed`);
     }
     if (!user) {
-      console.warn("⚠️ Google Auth Failed:", info); // ⚠️ Log failure reason
+      console.warn("⚠️ Google Auth Failed:", info);
       return res.redirect(`${FRONTEND_URL}/login?error=no_user`);
     }
 
@@ -32,11 +37,15 @@ router.get("/auth/google/callback", (req, res, next) => {
         console.error("❌ Login Error:", loginErr);
         return res.redirect(`${FRONTEND_URL}/login?error=login_failed`);
       }
-      console.log("✅ User Authenticated:", user); // ✅ Log successful login
+
+      console.log("✅ User Authenticated:", user);
+      console.log("🚀 Redirecting to:", `${FRONTEND_URL}/editor`);
+
       return res.redirect(`${FRONTEND_URL}/editor`);
     });
   })(req, res, next);
 });
+
 
 // Logout Route
 router.get("/logout", (req, res, next) => {
