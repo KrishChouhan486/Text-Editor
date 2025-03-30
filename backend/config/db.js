@@ -1,24 +1,23 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 
-dotenv.config();
+let isConnected = false; // ✅ Track connection status
 
 const connectDB = async () => {
-  try {
-    if (!process.env.MONGO_URI) {
-      throw new Error("❌ MONGO_URI is not defined in environment variables!");
-    }
+  if (isConnected) {
+    console.log("✅ Using existing MongoDB connection");
+    return;
+  }
 
+  try {
     await mongoose.connect(process.env.MONGO_URI, {
-      dbName: "writingApp", // ✅ Specify database name
-      serverSelectionTimeoutMS: 5000, // ✅ Retry connection in 5 sec if failed
-      socketTimeoutMS: 45000, // ✅ 45 sec socket timeout
+      dbName: "writingApp",
     });
 
+    isConnected = true;
     console.log("✅ MongoDB Connected Successfully");
   } catch (error) {
     console.error("❌ MongoDB Connection Failed:", error.message);
-    setTimeout(connectDB, 5000); // 🔄 Retry after 5 sec
+    process.exit(1);
   }
 };
 
