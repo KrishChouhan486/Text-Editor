@@ -10,17 +10,18 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL, // ✅ Use env variable
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ googleId: profile.id });
+        let user = await User.findOne({ email: profile.emails[0].value });
 
         if (!user) {
           user = new User({
             googleId: profile.id,
             fullName: profile.displayName,
             email: profile.emails[0].value,
+            password: null, // ✅ No password for OAuth users
           });
           await user.save();
         }
