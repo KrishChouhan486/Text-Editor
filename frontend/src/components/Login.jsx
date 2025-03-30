@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -16,9 +18,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/login", formData, { withCredentials: true });
+      const response = await axios.post(`${BACKEND_URL}/login`, formData, {
+        withCredentials: true,
+      });
+
       alert(response.data.message);
-      navigate("/editor"); // ✅ Redirect after successful login
+      navigate("/editor");
     } catch (error) {
       console.error("Login error:", error);
       alert(error.response?.data?.message || "Login failed. Please try again.");
@@ -31,9 +36,8 @@ const Login = () => {
         <h2 className="text-3xl font-bold text-gray-800 mb-6">Welcome Back!</h2>
         <p className="text-gray-500 mb-4">Sign in to continue</p>
 
-        {/* Google Login */}
         <a
-          href="http://localhost:3000/auth/google"
+          href={`${BACKEND_URL}/auth/google`}
           className="flex items-center justify-center bg-red-500 text-white py-3 px-6 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
         >
           <img
@@ -44,13 +48,11 @@ const Login = () => {
           <span className="font-semibold">Login with Google</span>
         </a>
 
-        {/* Divider */}
         <div className="my-6 text-gray-400 relative">
           <span className="absolute left-1/2 transform -translate-x-1/2 bg-white px-2">OR</span>
           <div className="border-t border-gray-300 mt-3"></div>
         </div>
 
-        {/* Email & Password Login Form */}
         <form onSubmit={handleSubmit} className="w-full">
           <input
             type="email"
@@ -78,14 +80,10 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Signup Redirect */}
         <div className="mt-4 border-t border-gray-300 pt-4">
           <p className="text-gray-500">
             Don't have an account?{" "}
-            <span
-              className="text-blue-500 hover:underline cursor-pointer"
-              onClick={() => navigate("/signup")}
-            >
+            <span className="text-blue-500 hover:underline cursor-pointer" onClick={() => navigate("/signup")}>
               Sign up
             </span>
           </p>

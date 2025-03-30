@@ -5,31 +5,34 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Quill CSS
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
-
 const TextEditor = () => {
-  const [text, setText] = useState("");
-  const [drafts, setDrafts] = useState([]);
-  const navigate = useNavigate();
+  const [text, setText] = useState("");  // State for the text in the editor
+  const [drafts, setDrafts] = useState([]); // State to store drafts
+  const navigate = useNavigate(); // React Router's navigate function
 
+  // Load saved drafts from localStorage on mount
   useEffect(() => {
     const savedDrafts = JSON.parse(localStorage.getItem("drafts")) || [];
     setDrafts(savedDrafts);
   }, []);
 
+  // Save the current draft
   const handleSaveDraft = () => {
     if (text.trim() === "") return;
     const newDrafts = [...drafts, text];
     setDrafts(newDrafts);
-    localStorage.setItem("drafts", JSON.stringify(newDrafts));
-    setText(""); // Clear editor after saving
+    localStorage.setItem("drafts", JSON.stringify(newDrafts));  // Save drafts to localStorage
+    setText(""); // Clear the editor
   };
 
+  // Delete a draft
   const handleDeleteDraft = (index) => {
     const newDrafts = drafts.filter((_, i) => i !== index);
     setDrafts(newDrafts);
-    localStorage.setItem("drafts", JSON.stringify(newDrafts));
+    localStorage.setItem("drafts", JSON.stringify(newDrafts));  // Update localStorage
   };
 
+  // Upload a draft to the backend
   const handleUpload = async (draft) => {
     try {
       alert("Uploading... Please wait.");
@@ -46,19 +49,22 @@ const TextEditor = () => {
     }
   };
 
+  // Handle Logout
   const handleLogout = () => {
-    // Clear drafts from localStorage
-    localStorage.removeItem("drafts");
-  
-    // Reset drafts state
-    setDrafts([]);
-  
-    // Perform logout request
-    axios.get("http://localhost:5173/logout", { withCredentials: true }).then(() => {
-      navigate("/");
-    });
+    localStorage.removeItem("drafts"); // Clear drafts from localStorage
+    setDrafts([]); // Reset drafts in state
+
+    // Send logout request to the server
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/logout`, { withCredentials: true })
+      .then(() => {
+        navigate("/");  // Redirect to login screen after successful logout
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+        alert("Logout failed. Please try again.");
+      });
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
@@ -69,7 +75,7 @@ const TextEditor = () => {
       >
         Logout
       </button>
-      
+
       <div className="flex gap-6 w-full max-w-6xl mt-10">
         {/* Editor Section */}
         <div className="w-2/3 bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700">
@@ -77,7 +83,7 @@ const TextEditor = () => {
           <ReactQuill 
             theme="snow"
             value={text}
-            onChange={setText}
+            onChange={setText}  // Update state on editor text change
             className="bg-white rounded-lg text-black"
             placeholder="Write something awesome..."
           />
@@ -88,7 +94,7 @@ const TextEditor = () => {
             Save Draft
           </button>
         </div>
-        
+
         {/* Drafts Section */}
         <div className="w-1/3 bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700">
           <h2 className="text-2xl font-bold mb-4 text-center">📜 Drafts</h2>

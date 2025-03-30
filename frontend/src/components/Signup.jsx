@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // ✅ Read from .env
+
 const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -13,11 +15,13 @@ const Signup = () => {
 
   const [error, setError] = useState("");
 
+  // Handle Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Clear errors when typing
+    setError(""); // Clear previous error messages
   };
 
+  // Handle Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -27,13 +31,14 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/signup", {
+      const response = await axios.post(`${BACKEND_URL}/signup`, {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
       });
+
       alert(response.data.message);
-      navigate("/editor");
+      navigate("/editor"); // Redirect after successful signup
     } catch (error) {
       console.error("Signup error:", error);
       alert(error.response?.data?.message || "Signup failed. Please try again.");
