@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: false }, // ✅ Make it optional for OAuth users
-  googleId: { type: String, unique: true, sparse: true }, // ✅ Add Google ID field
-  createdAt: { type: Date, default: Date.now },
-});
+const userSchema = new mongoose.Schema(
+  {
+    googleId: { type: String, unique: true, sparse: true },
+    fullName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String }, // Can be null for OAuth users
+  },
+  { timestamps: true }
+);
 
-const User = mongoose.model("User", userSchema);
-export default User;
+export default mongoose.model("User", userSchema);
