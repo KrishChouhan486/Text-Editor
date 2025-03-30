@@ -1,6 +1,7 @@
 import express from "express"; 
 import passport from "passport";
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Use process.env for backend
 const router = express.Router();
 
 // Google OAuth Login
@@ -11,10 +12,11 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("http://localhost:5173/editor"); // Redirect to TextEditor
+    res.redirect(`${FRONTEND_URL}/editor`); // ✅ Fixed template literal
   }
 );
 
+// Logout Route
 router.get("/logout", (req, res, next) => {
   req.logout((err) => {
     if (err) {
@@ -27,11 +29,9 @@ router.get("/logout", (req, res, next) => {
       }
 
       res.clearCookie("connect.sid", { path: "/" }); // Ensure the cookie is properly cleared
-      res.status(200).json({ message: "Logged out successfully" }); // Send a JSON response instead of redirecting
+      res.status(200).json({ message: "Logged out successfully" }); // ✅ Corrected JSON response
     });
   });
 });
-
-  
 
 export default router;
