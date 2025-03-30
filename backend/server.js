@@ -17,9 +17,13 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+// ✅ Updated to use environment variable for frontend URL
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -27,14 +31,15 @@ app.use(
     saveUninitialized: false,
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/", authRoutes);
 app.use("/upload", uploadRoutes);
 
-app.get("/", (req,res)=>{
-  res.send("welcom to my project");
+app.get("/", (req, res) => {
+  res.send("Welcome to my project");
 });
 
 // 🔹 Signup Route
@@ -78,7 +83,11 @@ app.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({ message: "Login successful!", token, user: { id: user._id, fullName: user.fullName, email: user.email } });
+    res.json({
+      message: "Login successful!",
+      token,
+      user: { id: user._id, fullName: user.fullName, email: user.email },
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Login failed" });
