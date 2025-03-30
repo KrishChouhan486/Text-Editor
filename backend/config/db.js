@@ -1,23 +1,23 @@
 import mongoose from "mongoose";
 
-let isConnected = false; // ✅ Track connection status
-
-const connectDB = async () => {
-  if (isConnected) {
-    console.log("✅ Using existing MongoDB connection");
-    return;
+const connectDB = async (attempt = 1) => {
+  if (attempt > 5) {
+    console.error("❌ MongoDB Connection Failed after multiple attempts.");
+    process.exit(1);
   }
 
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
       dbName: "writingApp",
+      connectTimeoutMS: 5000, // ✅ Reduce timeout to 5 sec
+      socketTimeoutMS: 30000, // ✅ 30 sec socket timeout
     });
 
-    isConnected = true;
     console.log("✅ MongoDB Connected Successfully");
+    return conn;
   } catch (error) {
-    console.error("❌ MongoDB Connection Failed:", error.message);
-    process.exit(1);
+    console.error(`❌ MongoDB Connection Failed (Attempt ${attempt}):`, error.message);
+    setTimeout(() => connectDB(attempt + 1), 5000); // 🔄 Retry after 5 sec
   }
 };
 
