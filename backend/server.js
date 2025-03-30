@@ -22,13 +22,26 @@ const app = express();
 // ✅ CORS Configuration (Fix for CORS errors)
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173"; // Get from .env file
 
+const allowedOrigins = [
+  "https://frontend-pi-lime-77.vercel.app",
+  "https://frontend-ciwwzniap-krishchouhan486s-projects.vercel.app",
+  "http://localhost:5173", // Allow localhost for testing
+];
+
 app.use(
   cors({
-    origin: frontendUrl, // Use dynamic frontend URL from .env
-    credentials: true, // Allow cookies and sessions
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("❌ CORS Not Allowed"));
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
 
 // ✅ Middleware
 app.use(express.json());
